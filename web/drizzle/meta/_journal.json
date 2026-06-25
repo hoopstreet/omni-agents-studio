@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1782100335632,
+      "tag": "0000_mighty_sheva_callister",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1782100498855,
+      "tag": "0001_stormy_hammerhead",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1782115253998,
+      "tag": "0002_brainy_captain_america",
+      "breakpoints": true
+    }
+  ]
+}

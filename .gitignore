@@ -1,0 +1,86 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+pnpm-lock.yaml
+
+# Testing
+coverage/
+.nyc_output/
+
+# Production
+build/
+dist/
+.next/
+out/
+.expo/
+.expo-shared/
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Android
+android/
+.gradle/
+.android/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# iOS
+ios/
+Pods/
+*.xcworkspace/
+*.xcodeproj/
+
+# Build artifacts
+build/
+dist/
+.eas/
+.turbo/
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Monorepo specific
+.pnpm-store/

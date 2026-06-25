@@ -1,0 +1,298 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-950;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded-full hover:bg-slate-600;
+  }
+
+  /* Smooth transitions */
+  @media (prefers-reduced-motion: no-preference) {
+    * {
+      @apply transition-colors duration-200;
+    }
+  }
+
+  /* Focus ring styling */
+  :focus-visible {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-950;
+  }
+
+  /* Selection styling */
+  ::selection {
+    @apply bg-blue-500 text-white;
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .flex {
+    @apply flex min-h-0 min-w-0;
+  }
+
+  /* Button styles */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 active:scale-95 transition-all duration-150;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-50 hover:bg-slate-800 active:scale-95 transition-all duration-150;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-slate-50 hover:bg-slate-800 active:scale-95 transition-all duration-150;
+  }
+
+  /* Card styles */
+  .card-base {
+    @apply rounded-lg border border-slate-800 bg-slate-900 p-4 shadow-sm;
+  }
+
+  .card-interactive {
+    @apply rounded-lg border border-slate-800 bg-slate-900 p-4 shadow-sm cursor-pointer transition-all duration-200 hover:border-blue-600 hover:shadow-md hover:bg-slate-800/80;
+  }
+
+  /* Text utilities */
+  .text-xs-semibold {
+    @apply text-xs font-semibold;
+  }
+
+  .text-sm-semibold {
+    @apply text-sm font-semibold;
+  }
+
+  .text-base-semibold {
+    @apply text-base font-semibold;
+  }
+
+  .text-lg-semibold {
+    @apply text-lg font-semibold;
+  }
+
+  /* Badge styles */
+  .badge-default {
+    @apply inline-flex items-center rounded-full bg-slate-800 px-2.5 py-0.5 text-xs font-medium text-slate-300;
+  }
+
+  .badge-accent {
+    @apply inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-400;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-0.5 text-xs font-medium text-green-400;
+  }
+
+  .badge-error {
+    @apply inline-flex items-center rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-400;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center rounded-full bg-yellow-500/10 px-2.5 py-0.5 text-xs font-medium text-yellow-400;
+  }
+
+  /* Empty state */
+  .empty-state {
+    @apply flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-700 bg-slate-900/50 p-8 text-center;
+  }
+
+  .empty-state-icon {
+    @apply mb-3 text-4xl text-slate-600;
+  }
+
+  .empty-state-title {
+    @apply text-lg font-semibold text-slate-50;
+  }
+
+  .empty-state-description {
+    @apply mt-1 text-sm text-slate-400;
+  }
+
+  /* Loading skeleton */
+  .skeleton {
+    @apply animate-pulse rounded-md bg-slate-800;
+  }
+
+  /* Sidebar animations */
+  @media (prefers-reduced-motion: no-preference) {
+    .sidebar-enter {
+      animation: slideInFromLeft 300ms ease-out;
+    }
+
+    .sidebar-exit {
+      animation: slideOutToLeft 300ms ease-in;
+    }
+
+    .fade-in {
+      animation: fadeIn 200ms ease-out;
+    }
+
+    .fade-out {
+      animation: fadeOut 200ms ease-in;
+    }
+
+    @keyframes slideInFromLeft {
+      from {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutToLeft {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+  }
+
+  /* Status indicators */
+  .status-idle {
+    @apply inline-block h-2 w-2 rounded-full bg-slate-600;
+  }
+
+  .status-running {
+    @apply inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse;
+  }
+
+  .status-completed {
+    @apply inline-block h-2 w-2 rounded-full bg-green-500;
+  }
+
+  .status-failed {
+    @apply inline-block h-2 w-2 rounded-full bg-red-500;
+  }
+
+  .status-pending {
+    @apply inline-block h-2 w-2 rounded-full bg-yellow-500;
+  }
+
+  /* Message bubble styles */
+  .message-bubble-user {
+    @apply ml-auto max-w-xs rounded-lg bg-blue-600 px-4 py-2 text-white;
+  }
+
+  .message-bubble-assistant {
+    @apply mr-auto max-w-xs rounded-lg bg-slate-900 px-4 py-2 text-slate-50 border border-slate-800;
+  }
+
+  /* Sidebar item hover effect */
+  .sidebar-item {
+    @apply relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-400 transition-all duration-200 hover:bg-slate-800 hover:text-slate-50;
+  }
+
+  .sidebar-item.active {
+    @apply bg-blue-500/10 text-blue-400;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  /* Flexbox utilities with min-width/min-height reset */
+  .flex {
+    @apply min-w-0 min-h-0;
+  }
+
+  /* Responsive text sizes */
+  @screen sm {
+    .text-responsive {
+      @apply text-sm;
+    }
+  }
+
+  @screen md {
+    .text-responsive {
+      @apply text-base;
+    }
+  }
+
+  @screen lg {
+    .text-responsive {
+      @apply text-lg;
+    }
+  }
+
+  /* Grid utilities */
+  .grid-auto-fit {
+    @apply grid auto-cols-fr gap-4;
+  }
+
+  /* Truncate utilities */
+  .truncate-2 {
+    @apply line-clamp-2;
+  }
+
+  .truncate-3 {
+    @apply line-clamp-3;
+  }
+
+  /* Gradient utilities */
+  .gradient-accent {
+    @apply bg-gradient-to-r from-blue-600 to-blue-500/50;
+  }
+
+  /* Shadow utilities */
+  .shadow-sm-accent {
+    @apply shadow-sm;
+  }
+
+  .shadow-md-accent {
+    @apply shadow-md;
+  }
+}

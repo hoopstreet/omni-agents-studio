@@ -1,0 +1,54 @@
+{
+  "name": "omni-agents",
+  "version": "1.0.0",
+  "description": "Omni-Agents Studio - AI Operating System (Web + Mobile)",
+  "private": true,
+  "workspaces": [
+    "web",
+    "mobile",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "install-all": "pnpm install",
+    "dev": "pnpm --recursive run dev",
+    "build": "pnpm --recursive run build",
+    "test": "pnpm --recursive run test",
+    "lint": "pnpm --recursive run lint",
+    "format": "pnpm --recursive run format",
+    "type-check": "pnpm --recursive run type-check",
+    "web:dev": "pnpm --filter web dev",
+    "web:build": "pnpm --filter web build",
+    "mobile:dev": "pnpm --filter mobile dev",
+    "mobile:build": "pnpm --filter mobile build:apk",
+    "backend:dev": "pnpm --filter backend dev",
+    "backend:build": "pnpm --filter backend build",
+    "backend:test": "pnpm --filter backend test",
+    "shared:build": "pnpm --filter shared build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "automation",
+    "platform",
+    "workspace",
+    "manus"
+  ],
+  "author": "Omni-Agents Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hoopstreet/Omni-Agents.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hoopstreet/Omni-Agents/issues"
+  },
+  "homepage": "https://github.com/hoopstreet/Omni-Agents#readme"
+}
