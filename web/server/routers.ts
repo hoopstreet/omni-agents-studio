@@ -19,6 +19,7 @@ import { connectorsRouter } from "./connectors.router";
 import { omniCommandCenterRouter } from "./omni-command-center.router";
 import { omniUltimateRouter } from "./omni-ultimate.router";
 import { connectorsManagementRouter } from "./connectors.management.router";
+import { gatewayKeyRouter } from "./gateway-key.router";
 import * as db from "./db";
 
 export const appRouter = router({
@@ -27,6 +28,7 @@ export const appRouter = router({
   marketplace: marketplaceRouter,
   rbac: rbacRouter,
   secrets: secretsRouter,
+  gatewayKey: gatewayKeyRouter,
   knowledge: knowledgeRouter,
   agentTesting: agentTestingRouter,
   multiAgent: multiAgentRouter,

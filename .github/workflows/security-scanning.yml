@@ -1,0 +1,321 @@
+name: 24/7 Security Scanning
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  # Secret scanning
+  secret-scan:
+    runs-on: ubuntu-latest
+    name: Secret Scanning
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug
+
+      - name: Notify on secrets found
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "🚨 Secrets detected in Omni-Agents repository!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Security Alert*\nSecrets detected in repository\nAction: Immediately revoke and rotate credentials"
+                  }
+                }
+              ]
+            }
+
+  # SAST - CodeQL
+  codeql:
+    runs-on: ubuntu-latest
+    name: CodeQL Analysis
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: 'javascript,typescript'
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  # Dependency scanning
+  dependency-scan:
+    runs-on: ubuntu-latest
+    name: Dependency Scanning
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: npm audit
+        run: pnpm audit --audit-level=moderate || true
+
+      - name: Snyk scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Omni-Agents'
+          path: '.'
+          format: 'JSON'
+          args: >
+            --enableExperimental
+            --enableRetired
+
+      - name: Upload OWASP results
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-check-report
+          path: reports/
+
+  # Container scanning
+  container-scan:
+    runs-on: ubuntu-latest
+    name: Container Scanning
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Code quality
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Run type check
+        run: pnpm type-check
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Malware scanning
+  malware-scan:
+    runs-on: ubuntu-latest
+    name: Malware Scanning
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ClamAV
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clamav clamav-daemon
+
+      - name: Update ClamAV database
+        run: |
+          sudo systemctl start clamav-freshclam || true
+          sudo freshclam
+
+      - name: Scan for malware
+        run: |
+          clamscan -r --heuristic-scan-option=Plus --log=clamscan-report.txt . || true
+
+      - name: Upload scan report
+        uses: actions/upload-artifact@v3
+        with:
+          name: malware-scan-report
+          path: clamscan-report.txt
+
+      - name: Check for threats
+        run: |
+          if grep -q "Infected files:" clamscan-report.txt; then
+            echo "⚠️ Malware detected!"
+            exit 1
+          fi
+
+  # License compliance
+  license-check:
+    runs-on: ubuntu-latest
+    name: License Compliance
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check licenses
+        run: |
+          pnpm install -g license-report
+          license-report --package=./package.json --markdown > LICENSE_REPORT.md
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-report
+          path: LICENSE_REPORT.md
+
+  # Git history scan
+  git-history-scan:
+    runs-on: ubuntu-latest
+    name: Git History Scan
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan git history for secrets
+        run: |
+          git log --all --source --remotes -S 'password\|token\|key\|secret' --pretty=format:"%h %s" > git-secrets.txt || true
+
+      - name: Check for large files
+        run: |
+          git rev-list --all --objects | sort -k2 | tail -20 > large-files.txt || true
+
+      - name: Upload git scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: git-scan-results
+          path: |
+            git-secrets.txt
+            large-files.txt
+
+  # Security report
+  security-report:
+    runs-on: ubuntu-latest
+    name: Generate Security Report
+    needs: [secret-scan, codeql, dependency-scan, container-scan, code-quality, malware-scan, license-check, git-history-scan]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all scan reports
+        uses: actions/download-artifact@v3
+
+      - name: Generate consolidated report
+        run: |
+          cat > SECURITY_REPORT.md << 'EOF'
+          # Security Scan Report
+          
+          Generated: $(date)
+          
+          ## Scan Results
+          
+          - Secret Scanning: ${{ needs.secret-scan.result }}
+          - CodeQL Analysis: ${{ needs.codeql.result }}
+          - Dependency Scanning: ${{ needs.dependency-scan.result }}
+          - Container Scanning: ${{ needs.container-scan.result }}
+          - Code Quality: ${{ needs.code-quality.result }}
+          - Malware Scanning: ${{ needs.malware-scan.result }}
+          - License Compliance: ${{ needs.license-check.result }}
+          - Git History: ${{ needs.git-history-scan.result }}
+          
+          ## Artifacts
+          
+          All scan reports are available in the artifacts section.
+          EOF
+
+      - name: Upload consolidated report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: SECURITY_REPORT.md
+
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "🔒 Omni-Agents Security Scan Complete",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Security Scan Report*\nSecret Scan: ${{ needs.secret-scan.result }}\nCodeQL: ${{ needs.codeql.result }}\nDependencies: ${{ needs.dependency-scan.result }}\nMalware: ${{ needs.malware-scan.result }}"
+                  }
+                }
+              ]
+            }
